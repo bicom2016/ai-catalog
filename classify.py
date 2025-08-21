@@ -20,17 +20,18 @@ load_dotenv()
 class GPT5HybridClassifier:
     def __init__(self, db_manager: DatabaseManager):
         """Initialize with GPT-5 and database connection"""
-        try:
-            self.client = openai.OpenAI(api_key=os.getenv("OPEN_AI_API_KEY"))
-        except TypeError:
-            # Fallback for proxy issues
-            openai.api_key = os.getenv("OPEN_AI_API_KEY")
-            self.client = openai
+        # Set API key directly
+        os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_AI_API_KEY")
+        
+        # Initialize client without proxy issues
+        from openai import OpenAI
+        self.client = OpenAI()
+        
         self.db = db_manager
         self.config = DUPLICATE_DETECTION_CONFIG
         # Using GPT-5 with high reasoning
         self.model = "gpt-5"  # GPT-5 model
-        self.reasoning_effort = "high"  # Maximum reasoning capability
+        self.reasoning_effort = "high"  # Maximum reasoning capability for best accuracy
         
     def generate_hash_keys(self, normalized_name: str, original_name: str = "") -> Dict[str, str]:
         """
@@ -198,22 +199,21 @@ IMPORTANT:
 """
 
         try:
-            response = self.client.chat.completions.create(
+            # Using GPT-5 with reasoning API
+            response = self.client.responses.create(
                 model=self.model,
-                messages=[
+                reasoning={"effort": self.reasoning_effort},  # High reasoning for maximum accuracy
+                input=[
                     {
                         "role": "system", 
-                        "content": "You are an MRO expert with deep knowledge of industrial products. Use high reasoning to ensure accurate classification and normalization."
+                        "content": "You are an MRO expert with deep knowledge of industrial products. Use high reasoning to ensure accurate classification and normalization. Always return valid JSON."
                     },
                     {"role": "user", "content": prompt}
-                ],
-                reasoning_effort=self.reasoning_effort,  # High reasoning for GPT-5
-                response_format={"type": "json_object"},
-                temperature=0.1,  # Low temperature for consistency
-                max_tokens=4000
+                ]
             )
             
-            result = json.loads(response.choices[0].message.content)
+            # Parse the GPT-5 response
+            result = json.loads(response.output_text)
             classifications = result.get('classifications', [])
             
             # Generate hash keys for each product
@@ -281,9 +281,9 @@ IMPORTANT:
     
     def estimate_api_cost(self, input_tokens: int, output_tokens: int) -> float:
         """Estimate GPT-5 API cost"""
-        # GPT-5 pricing with high reasoning
-        input_cost_per_1k = 0.015  # $15 per 1M tokens
-        output_cost_per_1k = 0.060  # $60 per 1M tokens
+        # GPT-5 pricing with high reasoning (based on documentation)
+        input_cost_per_1k = 0.015  # $15 per 1M input tokens
+        output_cost_per_1k = 0.060  # $60 per 1M output tokens
         
         total_cost = (input_tokens / 1000 * input_cost_per_1k) + \
                     (output_tokens / 1000 * output_cost_per_1k)
