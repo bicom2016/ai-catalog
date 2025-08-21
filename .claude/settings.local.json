@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(railway --version)",
+      "Bash(railway login:*)",
+      "Bash(set RAILWAY_TOKEN=deaf0600-7513-4a04-875c-15c956d825ab)",
+      "Bash(railway whoami:*)",
+      "Bash(cmd /c:*)",
+      "Bash(set RAILWAY_TOKEN=85659110-f583-4478-949b-44d954343f95)",
+      "Bash(railway link:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(python:*)",
+      "Bash(py analyze_csv.py)",
+      "Bash(powershell:*)",
+      "Bash(winget install:*)",
+      "Bash(start ms-windows-store://pdp/?ProductId=9NRWMJP3717K)",
+      "Bash(py --version)",
+      "Bash(py -m pip install:*)",
+      "Bash(del nul)",
+      "Bash(rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
