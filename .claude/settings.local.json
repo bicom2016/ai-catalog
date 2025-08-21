@@ -19,7 +19,11 @@
       "Bash(py --version)",
       "Bash(py -m pip install:*)",
       "Bash(del nul)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(railway up:*)",
+      "Bash(railway services:*)",
+      "Bash(py:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

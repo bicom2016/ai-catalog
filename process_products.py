@@ -29,10 +29,10 @@ def load_products_from_csv(filepath: str = 'data/CategoriaD03-Produtos.csv') -> 
         product_column = df.columns[0]
         products = df[product_column].dropna().tolist()
         
-        print(f"✅ Loaded {len(products)} products from {filepath}")
+        print(f" Loaded {len(products)} products from {filepath}")
         return products
     except Exception as e:
-        print(f"❌ Error loading CSV: {e}")
+        print(f" Error loading CSV: {e}")
         return []
 
 def process_batch(classifier: GPT5HybridClassifier, 
@@ -53,18 +53,18 @@ def process_batch(classifier: GPT5HybridClassifier,
         'cost_estimate': 0
     }
     
-    print(f"\n📦 Processing batch {batch_number} ({len(products)} products)...")
+    print(f"\n Processing batch {batch_number} ({len(products)} products)...")
     
     # Step 1: Classify with GPT-5
-    print("  🤖 Calling GPT-5 with high reasoning...")
+    print("   Calling GPT-5 with high reasoning...")
     classified = classifier.classify_batch(products, batch_number)
     
     # Step 2: Detect duplicates using dictionary
-    print("  🔍 Checking for duplicates...")
+    print("   Checking for duplicates...")
     with_duplicates = classifier.detect_duplicates(classified)
     
     # Step 3: Save to database
-    print("  💾 Saving to PostgreSQL...")
+    print("   Saving to PostgreSQL...")
     for position, product in enumerate(with_duplicates):
         # Save product
         product_id = db.save_product(product, batch_id, position)
@@ -99,7 +99,7 @@ def process_batch(classifier: GPT5HybridClassifier,
     # Save batch statistics
     db.save_batch_stats(batch_id, stats)
     
-    print(f"  ✅ Batch {batch_number} complete:")
+    print(f"   Batch {batch_number} complete:")
     print(f"     - New products: {stats['new_products']}")
     print(f"     - Duplicates found: {stats['duplicates_found']}")
     print(f"     - Processing time: {stats['processing_time']:.2f}s")
@@ -111,36 +111,36 @@ def main():
     """Main processing pipeline"""
     
     print("=" * 70)
-    print("🚀 AI-CATALOG PROCESSING PIPELINE")
+    print("AI-CATALOG PROCESSING PIPELINE")
     print("=" * 70)
     
     # Show taxonomy summary
     taxonomy = get_taxonomy_summary()
-    print(f"\n📊 Taxonomy loaded:")
+    print(f"\n Taxonomy loaded:")
     print(f"   - Categories: {taxonomy['categories']}")
     print(f"   - Subcategories: {taxonomy['subcategories']}")
     
     # Initialize database
-    print("\n🔌 Connecting to PostgreSQL...")
+    print("\n Connecting to PostgreSQL...")
     db = DatabaseManager()
     
     # Initialize classifier
-    print("🤖 Initializing GPT-5 classifier...")
+    print(" Initializing GPT-5 classifier...")
     classifier = GPT5HybridClassifier(db)
     
     # Load products
-    print("\n📂 Loading products from CSV...")
+    print("\n Loading products from CSV...")
     products = load_products_from_csv('CategoriaD03-Produtos.csv')
     
     if not products:
-        print("❌ No products found to process")
+        print(" No products found to process")
         return
     
     # Process configuration
     batch_size = DUPLICATE_DETECTION_CONFIG['batch_size']  # 10 products per batch
     total_batches = (len(products) + batch_size - 1) // batch_size
     
-    print(f"\n📋 Processing configuration:")
+    print(f"\n Processing configuration:")
     print(f"   - Total products: {len(products)}")
     print(f"   - Batch size: {batch_size}")
     print(f"   - Total batches: {total_batches}")
@@ -152,7 +152,7 @@ def main():
     print(f"   - Estimated total cost: ${estimated_total_cost:.2f}")
     
     # Confirm processing
-    response = input("\n⚠️  Ready to process? (yes/no): ")
+    response = input("\n️  Ready to process? (yes/no): ")
     if response.lower() != 'yes':
         print("Processing cancelled")
         return
@@ -200,7 +200,7 @@ def main():
             
             # Progress update
             progress = ((batch_num + 1) / total_batches) * 100
-            print(f"\n📊 Overall progress: {progress:.1f}% ({batch_num + 1}/{total_batches} batches)")
+            print(f"\n Overall progress: {progress:.1f}% ({batch_num + 1}/{total_batches} batches)")
             print(f"   Unique products so far: {overall_stats['new_products']}")
             print(f"   Duplicates detected: {overall_stats['duplicates_found']}")
             
@@ -209,18 +209,18 @@ def main():
                 time.sleep(DUPLICATE_DETECTION_CONFIG.get('retry_delay', 2))
                 
         except Exception as e:
-            print(f"❌ Error processing batch {batch_num + 1}: {e}")
+            print(f" Error processing batch {batch_num + 1}: {e}")
             continue
     
     # Final summary
     print("\n" + "=" * 70)
-    print("✅ PROCESSING COMPLETE")
+    print(" PROCESSING COMPLETE")
     print("=" * 70)
     
     # Get final statistics from database
     summary = db.get_processing_summary()
     
-    print(f"\n📊 Final Statistics:")
+    print(f"\n Final Statistics:")
     print(f"   - Total products processed: {overall_stats['total_products']}")
     print(f"   - Unique products: {overall_stats['new_products']}")
     print(f"   - Duplicates found: {overall_stats['duplicates_found']}")
@@ -230,12 +230,12 @@ def main():
     print(f"   - Total API cost: ${overall_stats['total_cost']:.2f}")
     
     if summary['overall']:
-        print(f"\n📈 Database Summary:")
+        print(f"\n Database Summary:")
         print(f"   - Average confidence: {summary['overall']['avg_confidence']:.3f}")
         print(f"   - Total batches: {summary['overall']['total_batches']}")
     
     if summary['top_categories']:
-        print(f"\n🏷️ Top Categories:")
+        print(f"\n️ Top Categories:")
         for cat in summary['top_categories'][:5]:
             print(f"   - {cat['category_name']}: {cat['product_count']} products")
     
@@ -248,12 +248,12 @@ def main():
             'timestamp': datetime.now().isoformat()
         }, f, indent=2, default=str)
     
-    print(f"\n📄 Report saved to: {report_file}")
+    print(f"\n Report saved to: {report_file}")
     
     # Close database connection
     db.close()
     
-    print("\n✨ Processing pipeline completed successfully!")
+    print("\n Processing pipeline completed successfully!")
 
 if __name__ == "__main__":
     main()

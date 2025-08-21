@@ -20,10 +20,16 @@ load_dotenv()
 class GPT5HybridClassifier:
     def __init__(self, db_manager: DatabaseManager):
         """Initialize with GPT-5 and database connection"""
-        self.client = openai.OpenAI(api_key=os.getenv("OPEN_AI_API_KEY"))
+        try:
+            self.client = openai.OpenAI(api_key=os.getenv("OPEN_AI_API_KEY"))
+        except TypeError:
+            # Fallback for proxy issues
+            openai.api_key = os.getenv("OPEN_AI_API_KEY")
+            self.client = openai
         self.db = db_manager
         self.config = DUPLICATE_DETECTION_CONFIG
-        self.model = "gpt-5"  # Using GPT-5 latest model
+        # Using GPT-5 with high reasoning
+        self.model = "gpt-5"  # GPT-5 model
         self.reasoning_effort = "high"  # Maximum reasoning capability
         
     def generate_hash_keys(self, normalized_name: str, original_name: str = "") -> Dict[str, str]:
@@ -201,7 +207,7 @@ IMPORTANT:
                     },
                     {"role": "user", "content": prompt}
                 ],
-                reasoning_effort=self.reasoning_effort,
+                reasoning_effort=self.reasoning_effort,  # High reasoning for GPT-5
                 response_format={"type": "json_object"},
                 temperature=0.1,  # Low temperature for consistency
                 max_tokens=4000
@@ -275,7 +281,7 @@ IMPORTANT:
     
     def estimate_api_cost(self, input_tokens: int, output_tokens: int) -> float:
         """Estimate GPT-5 API cost"""
-        # GPT-5 pricing (estimated based on GPT-4 patterns)
+        # GPT-5 pricing with high reasoning
         input_cost_per_1k = 0.015  # $15 per 1M tokens
         output_cost_per_1k = 0.060  # $60 per 1M tokens
         

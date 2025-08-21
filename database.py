@@ -23,9 +23,9 @@ class DatabaseManager:
         """Establish PostgreSQL connection using Railway DATABASE_URL"""
         try:
             self.conn = psycopg2.connect(os.getenv("DATABASE_URL"))
-            print("✅ Connected to PostgreSQL on Railway")
+            print("Connected to PostgreSQL on Railway")
         except Exception as e:
-            print(f"❌ Database connection failed: {e}")
+            print(f"Database connection failed: {e}")
             raise
     
     def create_tables(self):
@@ -134,7 +134,7 @@ class DatabaseManager:
             """)
             
             self.conn.commit()
-            print("✅ Database tables created successfully")
+            print("Database tables created successfully")
     
     def check_duplicate_by_keys(self, hash_keys: Dict[str, str], 
                                key_weights: Dict[str, float]) -> Optional[Tuple[int, float]]:
