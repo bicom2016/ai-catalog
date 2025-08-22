@@ -1,9 +1,9 @@
 """
-GPT-5 High Reasoning Classifier with 6-Key Hash Strategy
-Hybrid approach: GPT-5 for intelligence, Dictionary for scale
+Claude Sonnet 3.5 Classifier with 6-Key Hash Strategy
+Hybrid approach: Claude for intelligence, Dictionary for scale
 """
 
-import openai
+import anthropic
 import json
 import re
 import unicodedata
@@ -19,19 +19,17 @@ load_dotenv()
 
 class GPT5HybridClassifier:
     def __init__(self, db_manager: DatabaseManager):
-        """Initialize with GPT-5 and database connection"""
-        # Set API key directly
-        os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_AI_API_KEY")
-        
-        # Initialize client without proxy issues
-        from openai import OpenAI
-        self.client = OpenAI()
+        """Initialize with Claude Sonnet 3.5 and database connection"""
+        # Initialize Claude client
+        self.client = anthropic.Anthropic(
+            api_key=os.getenv("CLAUDE_API_KEY")
+        )
         
         self.db = db_manager
         self.config = DUPLICATE_DETECTION_CONFIG
-        # Using GPT-5 with high reasoning
-        self.model = "gpt-5"  # GPT-5 model
-        self.reasoning_effort = "high"  # Maximum reasoning capability for best accuracy
+        # Using Claude Sonnet 3.5 (latest and most capable)
+        self.model = "claude-3-5-sonnet-20241022"  # Latest Claude Sonnet model
+        self.max_tokens = 4000
         
     def generate_hash_keys(self, normalized_name: str, original_name: str = "") -> Dict[str, str]:
         """
@@ -199,21 +197,19 @@ IMPORTANT:
 """
 
         try:
-            # Using GPT-5 with reasoning API
-            response = self.client.responses.create(
+            # Using Claude Sonnet 3.5 API
+            response = self.client.messages.create(
                 model=self.model,
-                reasoning={"effort": self.reasoning_effort},  # High reasoning for maximum accuracy
-                input=[
-                    {
-                        "role": "system", 
-                        "content": "You are an MRO expert with deep knowledge of industrial products. Use high reasoning to ensure accurate classification and normalization. Always return valid JSON."
-                    },
+                max_tokens=self.max_tokens,
+                temperature=0.1,  # Low temperature for consistency
+                system="You are an MRO expert with deep knowledge of industrial products. Your task is to classify products accurately and normalize their names. Always return valid JSON.",
+                messages=[
                     {"role": "user", "content": prompt}
                 ]
             )
             
-            # Parse the GPT-5 response
-            result = json.loads(response.output_text)
+            # Parse Claude's response
+            result = json.loads(response.content[0].text)
             classifications = result.get('classifications', [])
             
             # Generate hash keys for each product
@@ -280,10 +276,10 @@ IMPORTANT:
         return classified_products
     
     def estimate_api_cost(self, input_tokens: int, output_tokens: int) -> float:
-        """Estimate GPT-5 API cost"""
-        # GPT-5 pricing with high reasoning (based on documentation)
-        input_cost_per_1k = 0.015  # $15 per 1M input tokens
-        output_cost_per_1k = 0.060  # $60 per 1M output tokens
+        """Estimate Claude Sonnet 3.5 API cost"""
+        # Claude Sonnet 3.5 pricing (as of Nov 2024)
+        input_cost_per_1k = 0.003  # $3 per 1M input tokens
+        output_cost_per_1k = 0.015  # $15 per 1M output tokens
         
         total_cost = (input_tokens / 1000 * input_cost_per_1k) + \
                     (output_tokens / 1000 * output_cost_per_1k)

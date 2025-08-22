@@ -23,7 +23,8 @@
       "Bash(railway up:*)",
       "Bash(railway services:*)",
       "Bash(py:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(streamlit run:*)"
     ],
     "deny": [],
     "ask": []

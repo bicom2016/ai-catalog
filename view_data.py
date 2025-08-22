@@ -48,7 +48,7 @@ def load_products(_conn):
         similarity_score,
         classification_confidence,
         needs_review,
-        gpt5_reasoning,
+        reasoning_notes,
         processed_at,
         processing_batch_id
     FROM products_enhanced
@@ -84,7 +84,7 @@ def load_processing_stats(_conn):
         duplicates_found,
         low_confidence_count,
         processing_time_seconds,
-        gpt5_cost_estimate,
+        api_cost_estimate,
         created_at
     FROM processing_stats
     ORDER BY batch_number
@@ -277,7 +277,7 @@ def main():
             with col1:
                 st.metric("Total Batches", len(stats_df))
             with col2:
-                total_cost = stats_df['gpt5_cost_estimate'].sum()
+                total_cost = stats_df['api_cost_estimate'].sum()
                 st.metric("Total API Cost", f"${total_cost:.2f}")
             with col3:
                 total_time = stats_df['processing_time_seconds'].sum()
@@ -317,7 +317,7 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("AI-Catalog Data Viewer | GPT-5 High Reasoning Classification")
+    st.markdown("AI-Catalog Data Viewer | Advanced AI Classification")
 
 if __name__ == "__main__":
     main()

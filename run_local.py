@@ -61,7 +61,10 @@ def process_batch_with_review(classifier, db, products, batch_number, batch_id):
             print(f"   DUPLICATE GROUP: {row.get('duplicate_group_id', 'N/A')}")
             if row.get('is_master'):
                 print("   STATUS: MASTER RECORD")
-            print(f"   REASONING: {row.get('reasoning', 'N/A')[:100]}")
+            reasoning = row.get('reasoning', 'N/A')[:100]
+            # Remove problematic unicode characters
+            reasoning = reasoning.encode('ascii', 'replace').decode('ascii')
+            print(f"   REASONING: {reasoning}")
         
         # Statistics
         processing_time = time.time() - start_time
